@@ -19,5 +19,5 @@ dependencies = [
 packages = ["src/change2md_server"]
 
 [tool.vercel]
-entrypoint = "change2md_server.app:app"
+entrypoint = "src.change2md_server.app:app"
 
