@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: chatgpt-markdown-converter
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PUBLIC_HOST
+        value: chatgpt-markdown-converter.onrender.com
+      - key: MAX_FILE_BYTES
+        value: "26214400"
+      - key: MAX_MARKDOWN_CHARS
+        value: "500000"
+      - key: MAX_CONCURRENT_CONVERSIONS
+        value: "4"
+
