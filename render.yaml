@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: chatgpt-markdown-converter
+    name: change2md
     runtime: docker
     plan: free
     healthCheckPath: /health
     envVars:
       - key: PUBLIC_HOST
-        value: chatgpt-markdown-converter.onrender.com
+        value: change2md.onrender.com
       - key: MAX_FILE_BYTES
         value: "26214400"
       - key: MAX_MARKDOWN_CHARS

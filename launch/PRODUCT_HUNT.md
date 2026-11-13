@@ -1,4 +1,4 @@
-# Product Hunt launch draft
+# Change2MD — Product Hunt launch draft
 
 ## Tagline
 

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "chatgpt-markdown-converter"
+name = "change2md"
 version = "0.1.0"
 description = "A secure remote MCP server that converts user-supplied files and webpages to Markdown."
 requires-python = ">=3.11"
@@ -16,5 +16,5 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/convert2md_server"]
+packages = ["src/change2md_server"]
 

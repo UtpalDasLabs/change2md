@@ -1,4 +1,4 @@
-# Distribution checklist
+# Change2MD distribution checklist
 
 ## Primary
 

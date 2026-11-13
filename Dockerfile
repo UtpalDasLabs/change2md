@@ -14,5 +14,5 @@ RUN pip install --no-cache-dir .
 
 USER 65532:65532
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn convert2md_server.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn change2md_server.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
 

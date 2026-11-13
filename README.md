@@ -1,4 +1,4 @@
-# ChatGPT Markdown Converter
+# Change2MD
 
 A privacy-minded remote MCP server that converts user-supplied files and public
 webpages to Markdown inside ChatGPT and Codex.
@@ -38,7 +38,7 @@ from the first public release.
 python -m venv .venv
 . .venv/bin/activate
 pip install -e .
-PUBLIC_HOST=localhost:8000 uvicorn convert2md_server.app:app --host 0.0.0.0 --port 8000
+PUBLIC_HOST=localhost:8000 uvicorn change2md_server.app:app --host 0.0.0.0 --port 8000
 ```
 
 The MCP endpoint is `http://localhost:8000/mcp`; health is available at

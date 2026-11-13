@@ -1,0 +1,7 @@
+interface:
+  display_name: Change2MD
+  short_description: Files and pages to Markdown
+  default_prompt: Convert the attached file or public webpage to Markdown.
+  brand_color: "#16B8A6"
+policy:
+  allow_implicit_invocation: true

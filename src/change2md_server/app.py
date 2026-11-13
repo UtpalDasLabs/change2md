@@ -34,8 +34,8 @@ class OpenAIFile(BaseModel):
 
 
 mcp = MCPServer(
-    "markdown-converter",
-    title="Markdown Converter",
+    "change2md",
+    title="Change2MD",
     description="Convert user-supplied files and public webpages to Markdown.",
     instructions=(
         "Use these read-only tools only when the user asks to convert an attached file "
@@ -98,7 +98,9 @@ def _safe_suffix(file_name: str | None, mime_type: str | None = None) -> str:
 def _download(url: str, suffix: str = "") -> Path:
     current = url
     temp_path: Path | None = None
-    headers = {"User-Agent": "MarkdownConverter/0.1 (+https://github.com/UtpalDasLabs)"}
+    headers = {
+        "User-Agent": "Change2MD/0.1 (+https://github.com/UtpalDasLabs/change2md)"
+    }
 
     try:
         with requests.Session() as client:
@@ -209,7 +211,7 @@ async def convert_webpage_to_markdown(url: str) -> str:
 
 @mcp.custom_route("/health", methods=["GET"])
 async def health(_: Request) -> JSONResponse:
-    return JSONResponse({"status": "ok", "service": "markdown-converter"})
+    return JSONResponse({"status": "ok", "service": "change2md"})
 
 
 @mcp.custom_route("/.well-known/openai-apps-challenge", methods=["GET"])

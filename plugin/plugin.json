@@ -1,0 +1,89 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "change2md",
+  "version": "0.1.0",
+  "description": "Convert supported files and public webpages to Markdown inside ChatGPT and Codex.",
+  "homepage": "https://utpaldaslabs.github.io/change2md/",
+  "repository": "https://github.com/UtpalDasLabs/change2md",
+  "license": "MIT",
+  "author": {"name": "Utpal Das"},
+  "keywords": ["markdown", "documents", "conversion", "markitdown"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Change2MD",
+        "shortDescription": "Files and pages to Markdown",
+        "longDescription": "Change2MD converts supported attachments and public HTTPS webpages to Markdown from ordinary ChatGPT or Codex prompts. It handles PDF, Word, PowerPoint, Excel, Outlook, HTML, CSV, JSON, XML, EPUB, ZIP, images where MarkItDown supports metadata, and plain text. Files are processed temporarily with no permanent document storage. Version 0.1 intentionally excludes OCR, image captioning, audio transcription, recursive crawling, login-protected pages, and private-network URLs.",
+        "developerName": "Utpal Das",
+        "category": "Productivity",
+        "capabilities": [],
+        "defaultPrompt": [
+          "Convert the attached file to Markdown.",
+          "Turn this public webpage into Markdown.",
+          "Convert this spreadsheet to Markdown tables."
+        ],
+        "websiteURL": "https://utpaldaslabs.github.io/change2md/",
+        "supportURL": "https://utpaldaslabs.github.io/change2md/support.html",
+        "privacyPolicyURL": "https://utpaldaslabs.github.io/change2md/privacy.html",
+        "termsOfServiceURL": "https://utpaldaslabs.github.io/change2md/terms.html",
+        "logo": "./assets/icon.png",
+        "composerIcon": "./assets/icon.png",
+        "brandColor": "#16B8A6",
+        "brandColorDark": "#1CD5BF"
+      },
+      "review": {
+        "prompts": [
+          "Convert the attached PDF to Markdown.",
+          "Turn this Word document into Markdown.",
+          "Convert this Excel workbook to Markdown tables.",
+          "Convert this JSON file into readable Markdown.",
+          "Convert https://example.com to Markdown."
+        ],
+        "commerce": false,
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Convert a reviewer-provided PDF attachment and preserve its readable structure.",
+              "prompt": "Convert the attached PDF to Markdown.",
+              "tools_triggered": "convert_file_to_markdown",
+              "expected_behavior": "The model calls convert_file_to_markdown with the attached PDF in the file argument and returns Markdown grounded in the extracted headings, paragraphs, lists, and tables."
+            },
+            {
+              "description": "Convert a reviewer-provided Word document without changing the source file.",
+              "prompt": "Turn this Word document into Markdown.",
+              "tools_triggered": "convert_file_to_markdown",
+              "expected_behavior": "The model calls convert_file_to_markdown with the attached DOCX and returns Markdown reflecting the document structure supported by Microsoft MarkItDown."
+            },
+            {
+              "description": "Convert a reviewer-provided spreadsheet into Markdown tables.",
+              "prompt": "Convert this Excel workbook to Markdown tables.",
+              "tools_triggered": "convert_file_to_markdown",
+              "expected_behavior": "The model calls convert_file_to_markdown with the attached XLSX and returns Markdown containing the workbook's extracted sheet and table content."
+            },
+            {
+              "description": "Convert a reviewer-provided JSON attachment into readable Markdown.",
+              "prompt": "Convert this JSON file into readable Markdown.",
+              "tools_triggered": "convert_file_to_markdown",
+              "expected_behavior": "The model calls convert_file_to_markdown with the attached JSON file and returns a Markdown representation grounded only in that file."
+            },
+            {
+              "description": "Fetch and convert one known public HTTPS webpage.",
+              "prompt": "Convert https://example.com to Markdown.",
+              "tools_triggered": "convert_webpage_to_markdown",
+              "expected_behavior": "The model calls convert_webpage_to_markdown with https://example.com and returns Markdown containing the page's visible documentation text."
+            }
+          ],
+          "negative": [
+            {"description": "Reject a loopback target without fetching it.", "prompt": "Convert https://127.0.0.1/admin to Markdown."},
+            {"description": "Do not request credentials or claim access to a login-protected private dashboard.", "prompt": "Convert my private company dashboard to Markdown."},
+            {"description": "Explain that OCR and audio transcription are outside this release rather than fabricating content.", "prompt": "Transcribe this scanned image and audio recording to Markdown."}
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "Initial public release of Change2MD with automatic natural-language invocation for supported files and public webpages.",
+        "countries": []
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # OpenAI review preparation
 
-Status: implementation tested locally; public name, hosted endpoint, public URLs,
+Status: Change2MD implementation tested locally; hosted endpoint, public URLs,
 fixtures, demo recording, identity verification, and portal submission pending.
 
 ## Positive cases
@@ -28,7 +28,8 @@ fixtures, demo recording, identity verification, and portal submission pending.
 5. **Public webpage**
    - Prompt: `Convert https://example.com to Markdown.`
    - Tool: `convert_webpage_to_markdown`
-   - Expected: the public HTTPS page is fetched once and returned as Markdown.
+   - Expected: the public HTTPS page is fetched once and its visible text is
+     returned as Markdown.
 
 ## Negative cases
 

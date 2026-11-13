@@ -1,6 +1,6 @@
 import unittest
 
-from convert2md_server.app import _is_public_address, _safe_suffix, _validate_url_shape
+from change2md_server.app import _is_public_address, _safe_suffix, _validate_url_shape
 
 
 class SecurityHelpersTest(unittest.TestCase):
