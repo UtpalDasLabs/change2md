@@ -1,9 +1,24 @@
 import unittest
 
-from change2md_server.app import _is_public_address, _safe_suffix, _validate_url_shape
+from change2md_server.app import (
+    _allowed_hosts,
+    _is_public_address,
+    _safe_suffix,
+    _validate_url_shape,
+)
 
 
 class SecurityHelpersTest(unittest.TestCase):
+    def test_vercel_hosts_are_allowed(self) -> None:
+        hosts = _allowed_hosts(
+            {
+                "VERCEL_URL": "change2md-preview.vercel.app",
+                "VERCEL_PROJECT_PRODUCTION_URL": "change2md.vercel.app",
+            }
+        )
+        self.assertIn("change2md-preview.vercel.app", hosts)
+        self.assertIn("change2md.vercel.app", hosts)
+
     def test_private_addresses_are_blocked(self) -> None:
         for address in ("127.0.0.1", "10.0.0.1", "169.254.169.254", "::1"):
             self.assertFalse(_is_public_address(address))

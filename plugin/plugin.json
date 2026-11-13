@@ -13,7 +13,7 @@
       "interface": {
         "displayName": "Change2MD",
         "shortDescription": "Files and pages to Markdown",
-        "longDescription": "Change2MD converts supported attachments and public HTTPS webpages to Markdown from ordinary ChatGPT or Codex prompts. It handles PDF, Word, PowerPoint, Excel, Outlook, HTML, CSV, JSON, XML, EPUB, ZIP, images where MarkItDown supports metadata, and plain text. Files are processed temporarily with no permanent document storage. Version 0.1 intentionally excludes OCR, image captioning, audio transcription, recursive crawling, login-protected pages, and private-network URLs.",
+        "longDescription": "Change2MD Cloud converts supported attachments and public HTTPS webpages to Markdown from ordinary ChatGPT or Codex prompts. It handles PDF, Word, PowerPoint, Excel, Outlook, HTML, CSV, JSON, XML, EPUB, ZIP, images where MarkItDown supports metadata, and plain text. Files are processed temporarily on hosted Vercel infrastructure and deleted after conversion, with no permanent document storage. A separate Local Edition is available on GitHub for on-device desktop conversion. Version 0.1 intentionally excludes OCR, image captioning, audio transcription, recursive crawling, login-protected pages, and private-network URLs.",
         "developerName": "Utpal Das",
         "category": "Productivity",
         "capabilities": [],

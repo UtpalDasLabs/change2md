@@ -1,0 +1,7 @@
+interface:
+  display_name: Change2MD Local
+  short_description: Convert supplied files locally
+  default_prompt: Convert this supplied document or URL to Markdown locally.
+  brand_color: "#16B8A6"
+policy:
+  allow_implicit_invocation: true

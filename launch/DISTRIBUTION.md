@@ -5,6 +5,7 @@
 - OpenAI universal Plugin Directory (ChatGPT and Codex)
 - Product Hunt
 - Public GitHub repository with GitHub Pages
+- GitHub Release with separate `change2md-cloud` and `change2md-local` packages
 
 ## After approval
 

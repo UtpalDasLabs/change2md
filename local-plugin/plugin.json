@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "change2md-local",
+  "version": "0.1.0",
+  "description": "Convert supplied files and URLs to Markdown on your own computer.",
+  "homepage": "https://github.com/UtpalDasLabs/change2md/blob/main/LOCAL.md",
+  "repository": "https://github.com/UtpalDasLabs/change2md",
+  "license": "MIT",
+  "author": {"name": "Utpal Das"},
+  "keywords": ["markdown", "documents", "local", "privacy", "markitdown"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Change2MD Local",
+        "shortDescription": "Local files to Markdown",
+        "longDescription": "Change2MD Local converts explicitly supplied files and URLs to Markdown on the user's own computer through Microsoft's official MarkItDown MCP server. It requires uv and a desktop MCP client with local STDIO support. It is not available in ChatGPT web or mobile.",
+        "developerName": "Utpal Das",
+        "category": "Productivity",
+        "capabilities": [],
+        "defaultPrompt": "Convert this supplied file to Markdown locally.",
+        "logo": "./assets/icon.png",
+        "composerIcon": "./assets/icon.png",
+        "brandColor": "#16B8A6",
+        "brandColorDark": "#1CD5BF"
+      }
+    }
+  }
+}

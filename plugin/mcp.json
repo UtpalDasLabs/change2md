@@ -3,7 +3,7 @@
   "mcpServers": {
     "change2md": {
       "type": "streamable-http",
-      "url": "https://change2md.onrender.com/mcp",
+      "url": "https://change2md.vercel.app/mcp",
       "extensions": {"com.openai": {"auth": {"type": "none"}}}
     }
   }

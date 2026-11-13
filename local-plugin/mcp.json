@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "change2md-local": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--prerelease=allow",
+        "--from",
+        "markitdown-mcp==0.0.1a8",
+        "markitdown-mcp"
+      ]
+    }
+  }
+}

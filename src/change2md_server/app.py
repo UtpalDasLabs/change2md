@@ -5,6 +5,7 @@ import ipaddress
 import os
 import socket
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
@@ -222,9 +223,13 @@ async def openai_apps_challenge(_: Request) -> PlainTextResponse:
     return PlainTextResponse(token)
 
 
-allowed_hosts = ["127.0.0.1:*", "localhost:*", "[::1]:*"]
-if public_host := os.getenv("PUBLIC_HOST"):
-    allowed_hosts.append(public_host)
+def _allowed_hosts(environment: Mapping[str, str] = os.environ) -> list[str]:
+    hosts = ["127.0.0.1:*", "localhost:*", "[::1]:*"]
+    for name in ("PUBLIC_HOST", "VERCEL_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
+        if value := environment.get(name):
+            if value not in hosts:
+                hosts.append(value)
+    return hosts
 
 app = mcp.streamable_http_app(
     host="0.0.0.0",
@@ -232,7 +237,7 @@ app = mcp.streamable_http_app(
     stateless_http=True,
     max_request_body_size=1024 * 1024,
     transport_security=TransportSecuritySettings(
-        allowed_hosts=allowed_hosts,
+        allowed_hosts=_allowed_hosts(),
         allowed_origins=["https://chatgpt.com", "https://chat.openai.com"],
     ),
 )
