@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Change2MD</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Change2MD</p>
+    <h1>Page to Markdown</h1>
+    <p class="hint">Only the page URL is sent to the converter. Private and login-protected pages are not supported.</p>
+    <form id="form">
+      <label for="url">Public page URL</label>
+      <input id="url" type="url" required placeholder="https://example.com">
+      <button id="submit" type="submit">Convert page</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="result" hidden aria-labelledby="result-title">
+      <h2 id="result-title">Markdown</h2>
+      <pre id="output" tabindex="0"></pre>
+      <div class="actions">
+        <button id="copy" type="button" class="secondary">Copy</button>
+        <button id="download" type="button" class="secondary">Download</button>
+        <button id="next" type="button" class="secondary" hidden>Next chunk</button>
+      </div>
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

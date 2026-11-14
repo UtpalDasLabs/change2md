@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "change2md",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Convert supported files and public webpages to Markdown inside ChatGPT and Codex.",
   "homepage": "https://utpaldaslabs.github.io/change2md/",
   "repository": "https://github.com/UtpalDasLabs/change2md",

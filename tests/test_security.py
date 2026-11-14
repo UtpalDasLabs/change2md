@@ -2,10 +2,12 @@ import unittest
 
 from change2md_server.app import (
     _allowed_hosts,
+    _allowed_origins,
     _is_public_address,
     _safe_suffix,
     _validate_url_shape,
 )
+from change2md_server.conversion import chunk_markdown
 
 
 class SecurityHelpersTest(unittest.TestCase):
@@ -36,6 +38,32 @@ class SecurityHelpersTest(unittest.TestCase):
         self.assertEqual(_safe_suffix("report.DOCX"), ".docx")
         self.assertEqual(_safe_suffix("report", "application/pdf"), ".pdf")
         self.assertEqual(_safe_suffix("report.bad-suffix"), "")
+
+    def test_additional_mcp_origins_are_configurable(self) -> None:
+        origins = _allowed_origins(
+            {"ALLOWED_ORIGINS": "https://client.example, https://client.example/"}
+        )
+        self.assertIn("https://chatgpt.com", origins)
+        self.assertEqual(origins.count("https://client.example"), 1)
+
+    def test_markdown_can_be_chunked_and_resumed(self) -> None:
+        first = chunk_markdown("first line\nsecond line\nthird line", max_chars=23)
+        self.assertEqual(first.markdown, "first line\nsecond line\n")
+        self.assertEqual(first.next_offset, 23)
+        self.assertTrue(first.has_more)
+        second = chunk_markdown(
+            "first line\nsecond line\nthird line",
+            offset=first.next_offset or 0,
+            max_chars=23,
+        )
+        self.assertEqual(second.markdown, "third line")
+        self.assertFalse(second.has_more)
+        self.assertIsNone(second.next_offset)
+
+    def test_chunk_bounds_are_validated(self) -> None:
+        for offset, max_chars in ((-1, 20), (0, 0), (4, 20)):
+            with self.assertRaises(ValueError):
+                chunk_markdown("abc", offset=offset, max_chars=max_chars)
 
 
 if __name__ == "__main__":

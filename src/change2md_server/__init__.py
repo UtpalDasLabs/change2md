@@ -1,2 +1,2 @@
-"""Public ChatGPT-to-Markdown MCP server."""
+"""Model-neutral file and webpage conversion for AI clients and applications."""
 

@@ -1,35 +1,36 @@
 from __future__ import annotations
 
 import asyncio
-import ipaddress
 import os
-import socket
-import tempfile
 from collections.abc import Mapping
-from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
-import requests
-from markitdown import MarkItDown
 from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse
+from starlette.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
-MAX_FILE_BYTES = int(os.getenv("MAX_FILE_BYTES", str(25 * 1024 * 1024)))
-MAX_MARKDOWN_CHARS = int(os.getenv("MAX_MARKDOWN_CHARS", "500000"))
-MAX_REDIRECTS = 5
-REQUEST_TIMEOUT = 45.0
-_conversions = asyncio.Semaphore(int(os.getenv("MAX_CONCURRENT_CONVERSIONS", "4")))
+from change2md_server.api import convert_file_api, convert_url_api
+from change2md_server.web import WEB_APP_HTML
+from change2md_server.conversion import (
+    MAX_MARKDOWN_CHARS,
+    _is_public_address,
+    _safe_suffix,
+    _validate_url_shape,
+    convert_path,
+    download_to_temp,
+)
 
 
-class OpenAIFile(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+class FileReference(BaseModel):
+    """A client-neutral file reference; ChatGPT may additionally supply file_id."""
 
-    download_url: str = Field(description="Temporary ChatGPT-authorized HTTPS download URL.")
-    file_id: str = Field(description="ChatGPT file identifier.")
+    model_config = ConfigDict(extra="allow")
+
+    download_url: str = Field(description="Public or client-authorized HTTPS download URL.")
+    file_id: str | None = Field(default=None, description="Optional client file identifier.")
     mime_type: str | None = Field(default=None, description="File MIME type when available.")
     file_name: str | None = Field(default=None, description="Original file name when available.")
 
@@ -40,117 +41,11 @@ mcp = MCPServer(
     description="Convert user-supplied files and public webpages to Markdown.",
     instructions=(
         "Use these read-only tools only when the user asks to convert an attached file "
-        "or a public webpage to Markdown. Never infer unrelated files or URLs."
+        "or a public webpage to Markdown. Never infer unrelated files or URLs. For large "
+        "results, request smaller chunks with offset and max_chars."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
-
-
-def _is_public_address(value: str) -> bool:
-    address = ipaddress.ip_address(value)
-    return address.is_global and not any(
-        (
-            address.is_private,
-            address.is_loopback,
-            address.is_link_local,
-            address.is_multicast,
-            address.is_reserved,
-            address.is_unspecified,
-        )
-    )
-
-
-def _validate_url_shape(url: str) -> tuple[str, int]:
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
-        raise ValueError("Only credential-free HTTPS URLs are supported.")
-    return parsed.hostname, parsed.port or 443
-
-
-def _validate_public_https_url(url: str) -> None:
-    host, port = _validate_url_shape(url)
-    if host.lower() == "localhost":
-        raise ValueError("Local and private network URLs are not supported.")
-
-    try:
-        infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
-    except socket.gaierror as exc:
-        raise ValueError("The URL host could not be resolved.") from exc
-
-    addresses = {info[4][0] for info in infos}
-    if not addresses or any(not _is_public_address(address) for address in addresses):
-        raise ValueError("Local and private network URLs are not supported.")
-
-
-def _safe_suffix(file_name: str | None, mime_type: str | None = None) -> str:
-    suffix = Path(file_name or "").suffix.lower()
-    if suffix and len(suffix) <= 12 and suffix[1:].isalnum():
-        return suffix
-    return {
-        "application/pdf": ".pdf",
-        "application/json": ".json",
-        "application/xml": ".xml",
-        "text/csv": ".csv",
-        "text/html": ".html",
-        "text/plain": ".txt",
-    }.get((mime_type or "").split(";", 1)[0].lower(), "")
-
-
-def _download(url: str, suffix: str = "") -> Path:
-    current = url
-    temp_path: Path | None = None
-    headers = {
-        "User-Agent": "Change2MD/0.1 (+https://github.com/UtpalDasLabs/change2md)"
-    }
-
-    try:
-        with requests.Session() as client:
-            client.headers.update(headers)
-            for _ in range(MAX_REDIRECTS + 1):
-                _validate_public_https_url(current)
-                with client.get(
-                    current,
-                    allow_redirects=False,
-                    stream=True,
-                    timeout=REQUEST_TIMEOUT,
-                ) as response:
-                    if response.status_code in {301, 302, 303, 307, 308}:
-                        location = response.headers.get("location")
-                        if not location:
-                            raise ValueError("The download redirected without a destination.")
-                        current = urljoin(current, location)
-                        continue
-
-                    response.raise_for_status()
-                    declared_size = int(response.headers.get("content-length", "0") or "0")
-                    if declared_size > MAX_FILE_BYTES:
-                        raise ValueError("The file exceeds the 25 MB limit.")
-
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as handle:
-                        temp_path = Path(handle.name)
-                        size = 0
-                        for chunk in response.iter_content(chunk_size=64 * 1024):
-                            size += len(chunk)
-                            if size > MAX_FILE_BYTES:
-                                raise ValueError("The file exceeds the 25 MB limit.")
-                            handle.write(chunk)
-                    return temp_path
-
-            raise ValueError("The download redirected too many times.")
-    except Exception:
-        if temp_path is not None:
-            temp_path.unlink(missing_ok=True)
-        raise
-
-
-async def _convert_path(path: Path) -> str:
-    async with _conversions:
-        markdown = await asyncio.to_thread(
-            lambda: MarkItDown(enable_plugins=False).convert_local(path).markdown
-        )
-    if len(markdown) > MAX_MARKDOWN_CHARS:
-        raise ValueError("The converted Markdown is too large for one ChatGPT response.")
-    return markdown
 
 
 @mcp.tool(
@@ -173,11 +68,16 @@ async def _convert_path(path: Path) -> str:
     },
     structured_output=False,
 )
-async def convert_file_to_markdown(file: OpenAIFile) -> str:
+async def convert_file_to_markdown(
+    file: FileReference,
+    offset: int = 0,
+    max_chars: int = MAX_MARKDOWN_CHARS,
+) -> str:
     suffix = _safe_suffix(file.file_name, file.mime_type)
-    path = await asyncio.to_thread(_download, file.download_url, suffix)
+    path = await asyncio.to_thread(download_to_temp, file.download_url, suffix)
     try:
-        return await _convert_path(path)
+        result = await convert_path(path, offset=offset, max_chars=max_chars)
+        return result.markdown
     finally:
         path.unlink(missing_ok=True)
 
@@ -201,18 +101,38 @@ async def convert_file_to_markdown(file: OpenAIFile) -> str:
     },
     structured_output=False,
 )
-async def convert_webpage_to_markdown(url: str) -> str:
+async def convert_webpage_to_markdown(
+    url: str,
+    offset: int = 0,
+    max_chars: int = MAX_MARKDOWN_CHARS,
+) -> str:
     suffix = _safe_suffix(urlparse(url).path, "text/html")
-    path = await asyncio.to_thread(_download, url, suffix or ".html")
+    path = await asyncio.to_thread(download_to_temp, url, suffix or ".html")
     try:
-        return await _convert_path(path)
+        result = await convert_path(path, offset=offset, max_chars=max_chars)
+        return result.markdown
     finally:
         path.unlink(missing_ok=True)
 
 
+@mcp.custom_route("/api/convert", methods=["POST", "OPTIONS"])
+async def api_convert_url(request: Request) -> JSONResponse:
+    return await convert_url_api(request)
+
+
+@mcp.custom_route("/api/convert/file", methods=["POST", "OPTIONS"])
+async def api_convert_file(request: Request) -> JSONResponse:
+    return await convert_file_api(request)
+
+
+@mcp.custom_route("/convert", methods=["GET"])
+async def web_converter(_: Request) -> HTMLResponse:
+    return HTMLResponse(WEB_APP_HTML)
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health(_: Request) -> JSONResponse:
-    return JSONResponse({"status": "ok", "service": "change2md"})
+    return JSONResponse({"status": "ok", "service": "change2md", "version": "0.2.0"})
 
 
 @mcp.custom_route("/.well-known/openai-apps-challenge", methods=["GET"])
@@ -231,6 +151,16 @@ def _allowed_hosts(environment: Mapping[str, str] = os.environ) -> list[str]:
                 hosts.append(value)
     return hosts
 
+
+def _allowed_origins(environment: Mapping[str, str] = os.environ) -> list[str]:
+    origins = ["https://chatgpt.com", "https://chat.openai.com"]
+    for origin in environment.get("ALLOWED_ORIGINS", "").split(","):
+        origin = origin.strip().rstrip("/")
+        if origin and origin not in origins:
+            origins.append(origin)
+    return origins
+
+
 app = mcp.streamable_http_app(
     host="0.0.0.0",
     json_response=True,
@@ -238,7 +168,6 @@ app = mcp.streamable_http_app(
     max_request_body_size=1024 * 1024,
     transport_security=TransportSecuritySettings(
         allowed_hosts=_allowed_hosts(),
-        allowed_origins=["https://chatgpt.com", "https://chat.openai.com"],
+        allowed_origins=_allowed_origins(),
     ),
 )
-
