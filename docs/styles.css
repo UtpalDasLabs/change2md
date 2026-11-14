@@ -11,5 +11,13 @@ h2 { margin-top:48px; font-size:1.4rem; }
 .lede { color:var(--muted); font-size:1.2rem; margin:14px 0 0; }
 .card { margin-top:36px; padding:24px; background:color-mix(in srgb,var(--panel) 88%,transparent); border:1px solid #21465f; border-radius:18px; }
 .badge { color:#041b20; background:var(--accent); border-radius:999px; display:inline-block; padding:4px 11px; font-size:.82rem; font-weight:700; }
+.downloads { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:24px; }
+.download { display:flex; flex-direction:column; justify-content:center; min-height:112px; padding:16px; background:color-mix(in srgb,var(--panel) 88%,transparent); border:1px solid #21465f; border-radius:14px; text-decoration:none; transition:border-color 200ms,background-color 200ms; }
+.download strong { color:var(--text); font-size:1rem; }
+.download span { color:var(--muted); font-size:.85rem; margin-top:6px; }
+.download:hover { border-color:var(--accent); background:var(--panel); }
+a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+.download-meta { color:var(--muted); font-size:.9rem; margin-top:18px; }
 footer { color:var(--muted); margin-top:64px; font-size:.9rem; }
-@media (max-width:560px) { .hero { grid-template-columns:72px 1fr; } .hero img { width:72px; height:72px; } }
+@media (prefers-reduced-motion:reduce) { .download { transition:none; } }
+@media (max-width:560px) { .hero { grid-template-columns:72px 1fr; } .hero img { width:72px; height:72px; } .downloads { grid-template-columns:1fr; } .download { min-height:88px; } }
