@@ -12,9 +12,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
-from change2md_server.api import convert_file_api, convert_url_api
-from change2md_server.web import WEB_APP_HTML
-from change2md_server.conversion import (
+from .api import convert_file_api, convert_url_api
+from .web import WEB_APP_HTML
+from .conversion import (
     MAX_MARKDOWN_CHARS,
     _is_public_address,
     _safe_suffix,

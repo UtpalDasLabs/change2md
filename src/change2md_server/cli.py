@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from change2md_server.client import Change2MD, DEFAULT_BASE_URL
-from change2md_server.conversion import (
+from .client import Change2MD, DEFAULT_BASE_URL
+from .conversion import (
     MAX_MARKDOWN_CHARS,
     _safe_suffix,
     convert_path,

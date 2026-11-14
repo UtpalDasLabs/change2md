@@ -11,7 +11,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.datastructures import UploadFile
 
-from change2md_server.conversion import (
+from .conversion import (
     MAX_FILE_BYTES,
     MAX_MARKDOWN_CHARS,
     _safe_suffix,
